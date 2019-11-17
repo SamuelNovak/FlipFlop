@@ -1,5 +1,7 @@
-from PIL import Image, ImageDraw
+import json
+from PIL import Image, ImageDraw, ImageFilter
 from io import BytesIO
+from random import choice
 
 # def ellipse_params(landmarks):
 #     left = tuple([i for i in landmarks["eyeLeftOuter"]])
@@ -9,9 +11,6 @@ from io import BytesIO
 TOP_PADDING = 0.40
 BOTTOM_PADDING = 0.10
 SIDE_PADDING = 0.05
-
-PLATYPUS_X = 950
-PLATYPUS_Y = 620
 
 def ellipse_coords(rectangle):
     top = rectangle["top"]
@@ -26,24 +25,34 @@ def extract_face(img, size, ell_coords):
     mask = Image.new("L", size, 0)
     mdraw = ImageDraw.Draw(mask)
     mdraw.ellipse(((0,0), size), 255)
+    mask = mask.filter(ImageFilter.BLUR)
 
     face = img.crop(ell_coords[0] + ell_coords[1])
     face.putalpha(mask)
     return face
 
+def random_background():
+    with open("animals/faces.json", "r") as f:
+        faces = json.loads(f.read())
+    bg_file = choice(list(faces.keys()))
+    bg = Image.open("animals/" + bg_file)
+    return bg, tuple(faces[bg_file])
+
+def attach_face_to_background(face, background, pos):
+    background.paste(face, (pos[0] - (face.size[0] // 2), pos[1] - (face.size[1] // 2)), face)
+    return background
+
 def process(img_data, emotion, rectangle, landmarks):
     img = Image.open(BytesIO(img_data))
-    draw = ImageDraw.Draw(img)
 
     size, ell_coords = ellipse_coords(rectangle)
     face = extract_face(img, size, ell_coords)
-    face.show()
 
-    platypus = Image.open("platypuses/0.jpg")
-    platypus.paste(face, (PLATYPUS_X - (size[0] // 2), PLATYPUS_Y - (size[1] // 2)), face)
-    platypus.show()
+    background, fpos = random_background()
+    result = attach_face_to_background(face, background, fpos)
+    result.show()
 
     with BytesIO() as buf:
-        platypus.save(buf, format="jpeg")
+        result.save(buf, format="jpeg")
         ret = buf.getvalue()
     return ret
