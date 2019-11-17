@@ -1,8 +1,9 @@
 import random, os, io, base64
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file, abort
 from azure.cognitiveservices.vision.face import FaceClient
 from msrest.authentication import CognitiveServicesCredentials
 from dotenv import load_dotenv
+from urllib.parse import urlparse, urljoin
 
 import process_img
 
@@ -28,11 +29,7 @@ def best_emotion(emotion):
     emotions['surprise'] = emotion.surprise
     return max(zip(emotions.values(), emotions.keys()))[1]
 
-app = Flask(__name__)
-
-@app.route('/')
-def home():
-    return render_template('dummy.html')
+app = Flask(__name__, static_folder="ou_mama_web")
 
 @app.route('/face', methods=['POST'])
 def check_results():
@@ -55,6 +52,7 @@ def check_results():
         return jsonify({
             "status": "ok",
             "emotion": detected_emotion,
+            "all_emotions": faces[0].face_attributes.emotion.serialize(),
             "face_rectangle": rect,
             "face_landmarks": landmarks,
             "image_base64": new_img,
@@ -63,3 +61,26 @@ def check_results():
         return jsonify({"status": "error", "message": "Only one face allowed in the picture."})
     else:
         return jsonify({"status": "error", "message": "No face detected."})
+
+
+def is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and \
+            ref_url.netloc == test_url.netloc and \
+            not ".." in target
+
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def static_path(path):
+    if not path:
+        return send_file("static/docs/index.html")
+    if is_safe_url(path):
+        try:
+            return send_file(urljoin("static/docs/", path))
+        except:
+            import sys
+            print(sys.exc_info())
+            return abort(404)
+    else:
+        return abort(403)
