@@ -49,7 +49,7 @@ def check_results():
         detected_emotion = best_emotion(faces[0].face_attributes.emotion)
         landmarks = faces[0].face_landmarks.serialize()
         rect = faces[0].face_rectangle.as_dict()
-        new_img = "data:image/png;base64," \
+        new_img = "data:image/jpeg;base64," \
             + base64.b64encode(process_img.process(image_bytes, detected_emotion, rect, landmarks)).decode()
         hair = faces[0].face_attributes.hair.serialize()
         return jsonify({
