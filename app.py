@@ -42,14 +42,23 @@ def check_results():
     image = io.BytesIO(image_bytes)
 
     faces = face_client.face.detect_with_stream(image,
-                                                return_face_attributes=['emotion', ],
+                                                return_face_attributes=['emotion', "hair"],
                                                 return_face_landmarks=True)
 
     if len(faces) == 1:
         detected_emotion = best_emotion(faces[0].face_attributes.emotion)
         landmarks = faces[0].face_landmarks.serialize()
-        new_img = "data:image/jpeg;base64," + base64.b64encode(process_img.process(image_bytes, detected_emotion, landmarks)).decode()
-        return jsonify({"status": "ok", "emotion": detected_emotion, "landmarks": landmarks, "image_base64": new_img})
+        rect = faces[0].face_rectangle.as_dict()
+        new_img = "data:image/png;base64," \
+            + base64.b64encode(process_img.process(image_bytes, detected_emotion, rect, landmarks)).decode()
+        hair = faces[0].face_attributes.hair.serialize()
+        return jsonify({
+            "status": "ok",
+            "emotion": detected_emotion,
+            "face_rectangle": rect,
+            "face_landmarks": landmarks,
+            "image_base64": new_img,
+            "hair": hair})
     elif len(faces) > 1:
         return jsonify({"status": "error", "message": "Only one face allowed in the picture."})
     else:
