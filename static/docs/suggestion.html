@@ -17,7 +17,7 @@
 <html>
 
 <head>
-  <title>Coffee Finder</title>
+  <title>Suggestions</title>
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
   <meta charset="utf-8">
   <style>
@@ -98,7 +98,30 @@
     let currentInfoWindow;
     let service;
     let infoPane;
+    let suggestion_type;
+
+    function decideType(emotion) {
+      if (emotion == "happiness")
+        return "cinema";
+      if (emotion == "neutral")
+        return "park";
+      if (emotion == "surprised")
+        return "pub";
+      if (emotion == "scared")
+        return "police";
+      return "coffee"
+    }
+
     function initMap() {
+      var args = window.location.href.match(/suggestion\.html\?emotion\=(\w+)/);
+      if (args.length < 2)
+        suggestion_type = "coffee"; // default
+      else {
+        suggestion_type = decideType(args[1]);
+        document.getElementsByTagName("title")[0].textContent += " (" + suggestion_type + ")";
+      }
+
+
       // Initialize variables
       bounds = new google.maps.LatLngBounds();
       infoWindow = new google.maps.InfoWindow;
@@ -162,7 +185,7 @@
       let request = {
         location: position,
         rankBy: google.maps.places.RankBy.DISTANCE,
-        keyword: 'coffee'
+        keyword: suggestion_type
       };
 
       service = new google.maps.places.PlacesService(map);
