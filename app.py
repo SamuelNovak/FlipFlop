@@ -79,8 +79,6 @@ def static_path(path):
         try:
             return send_file(urljoin("static/docs/", path))
         except:
-            import sys
-            print(sys.exc_info())
             return abort(404)
     else:
         return abort(403)
