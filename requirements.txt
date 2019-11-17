@@ -1,3 +1,4 @@
 flask
+azure
 azure-cognitiveservices-vision-face
 pillow

@@ -12,6 +12,9 @@ TOP_PADDING = 0.40
 BOTTOM_PADDING = 0.10
 SIDE_PADDING = 0.05
 
+WIDTH = 640
+HEIGHT = 480
+
 def ellipse_coords(rectangle):
     top = rectangle["top"]
     left = rectangle["left"]
@@ -39,7 +42,13 @@ def random_background():
     return bg, tuple(faces[bg_file])
 
 def attach_face_to_background(face, background, pos):
-    background.paste(face, (pos[0] - (face.size[0] // 2), pos[1] - (face.size[1] // 2)), face)
+    w, h = background.size
+    par = max((w / WIDTH, h / HEIGHT))
+    if par >= 2:
+        background = background.resize((int(w // min(2, par)), int(h // min(2, par))))
+        background.paste(face, (int((pos[0] - (face.size[0] // 2)) // min(2, par)), int((pos[1] - (face.size[1] // 2)) // min(2, par))), face)
+    else:
+        background.paste(face, (pos[0] - (face.size[0] // 2), pos[1] - (face.size[1] // 2)), face)
     return background
 
 def process(img_data, emotion, rectangle, landmarks):
@@ -50,7 +59,7 @@ def process(img_data, emotion, rectangle, landmarks):
 
     background, fpos = random_background()
     result = attach_face_to_background(face, background, fpos)
-    result.show()
+    # result.show()
 
     with BytesIO() as buf:
         result.save(buf, format="jpeg")

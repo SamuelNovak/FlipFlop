@@ -13,7 +13,7 @@
 
     <title>
       
-        StartUp &middot; 
+        FlipFlop 
       
     </title>
 
@@ -41,6 +41,15 @@
           min-height: 100vh;
           -webkit-overflow-scrolling: touch;
         }
+      }
+
+      #face-app {
+        position: absolute;
+        right: 25px;
+      }
+
+      #reset-app, #result {
+        display: hidden;
       }
     </style>
   </head>
@@ -128,11 +137,13 @@
     </div>
   </div>
 
-  <div>
-    <canvas></canvas>
-    <button>Scan photo</button>
+  <div id="face-app">
+    <video id="video" autoplay></video>
+    <img id="result" class="d-none" src="" /><br/>
+    <button id="capture">Scan photo</button>
+    <button id="reset-app" class="d-none">Reset</button>
+    <button id="suggestion" class="d-none"></button>
   </div>
-
 </div>
 
 <div class="block block-secondary app-iphone-block">
@@ -216,16 +227,6 @@
   </div>
 </div>
 
-<div class="block app-ribbon py-5">
-  <div class="container text-xs-center">
-    <img src="assets/img/startup-4.svg">
-    <img src="assets/img/startup-5.svg">
-    <img src="assets/img/startup-6.svg">
-    <img src="assets/img/startup-7.svg">
-    <img src="assets/img/startup-8.svg">
-  </div>
-</div>
-
 <div class="block block-secondary app-block-marketing-grid">
   <div class="container text-xs-center">
 
@@ -244,10 +245,6 @@
       <div class="col-sm-4 px-2 mb-3">
         <img class="mb-1" src="assets/img/startup-10.svg">
         <p><strong>E-commerce.</strong> We automatically handle all sales analytics.</p>
-      </div>
-      <div class="col-sm-4 px-2 mb-3">
-        <img class="mb-1" src="assets/img/startup-11.svg">
-        <p><strong>Turnaround.</strong> Our data analysis is distributed, so it processes in seconds.</p>
       </div>
       <div class="col-sm-4 px-2 mb-3">
         <img class="mb-1" src="assets/img/startup-11.svg">
@@ -390,6 +387,7 @@
     <script src="assets/js/tether.min.js"></script>
     <script src="assets/js/toolkit.js"></script>
     <script src="assets/js/application.js"></script>
+    <script src="assets/js/photo.js"></script>
   </body>
 </html>
 

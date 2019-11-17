@@ -2,12 +2,12 @@ import random, os, io, base64
 from flask import Flask, render_template, request, jsonify, send_file, abort
 from azure.cognitiveservices.vision.face import FaceClient
 from msrest.authentication import CognitiveServicesCredentials
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 from urllib.parse import urlparse, urljoin
 
 import process_img
 
-load_dotenv()
+#load_dotenv()
 
 
 credentials = CognitiveServicesCredentials(os.environ['face_api_key'])
@@ -53,10 +53,11 @@ def check_results():
             "status": "ok",
             "emotion": detected_emotion,
             "all_emotions": faces[0].face_attributes.emotion.serialize(),
-            "face_rectangle": rect,
-            "face_landmarks": landmarks,
+            # "face_rectangle": rect,
+            # "face_landmarks": landmarks,
             "image_base64": new_img,
-            "hair": hair})
+            "hair": hair
+        })
     elif len(faces) > 1:
         return jsonify({"status": "error", "message": "Only one face allowed in the picture."})
     else:
